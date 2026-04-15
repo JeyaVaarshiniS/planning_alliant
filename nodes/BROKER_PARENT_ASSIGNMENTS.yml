@@ -1,0 +1,187 @@
+fileVersion: 1
+id: f90608e5-2cd1-407f-e615-b2c3d4e5f607
+name: BROKER_PARENT_ASSIGNMENTS
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: PLANNING_ALLIANT_STAGING
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d
+          stepCounter: f90608e5-2cd1-407f-e615-b2c3d4e5f607
+        config: {}
+        dataType: VARCHAR(100)
+        description: ""
+        name: PLANNING_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d
+                stepCounter: e8f5f7d4-1bc0-4f6e-d504-a1b2c3d4e5f6
+            transform: T.PLANNING_ID
+        transform: T.PLANNING_ID
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e
+          stepCounter: f90608e5-2cd1-407f-e615-b2c3d4e5f607
+        config: {}
+        dataType: VARCHAR(100)
+        description: ""
+        name: BROKER_NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2b3c4d5e-6f7a-4b8c-9d0e-1f2a3b4c5d6e
+                stepCounter: e8f5f7d4-1bc0-4f6e-d504-a1b2c3d4e5f6
+            transform: T.BROKER_NAME
+        transform: T.BROKER_NAME
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f
+          stepCounter: f90608e5-2cd1-407f-e615-b2c3d4e5f607
+        config: {}
+        dataType: VARCHAR(100)
+        description: ""
+        name: EXISTING_PARENT_PLANNING_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3c4d5e6f-7a8b-4c9d-0e1f-2a3b4c5d6e7f
+                stepCounter: e8f5f7d4-1bc0-4f6e-d504-a1b2c3d4e5f6
+            transform: T.EXISTING_PARENT_PLANNING_ID
+        transform: T.EXISTING_PARENT_PLANNING_ID
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a
+          stepCounter: f90608e5-2cd1-407f-e615-b2c3d4e5f607
+        config: {}
+        dataType: NUMBER(10,0)
+        description: ""
+        name: EXISTING_GROUP_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4d5e6f7a-8b9c-4d0e-1f2a-3b4c5d6e7f8a
+                stepCounter: e8f5f7d4-1bc0-4f6e-d504-a1b2c3d4e5f6
+            transform: T.EXISTING_GROUP_ID
+        transform: T.EXISTING_GROUP_ID
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b
+          stepCounter: f90608e5-2cd1-407f-e615-b2c3d4e5f607
+        config: {}
+        dataType: NUMBER(19,0)
+        description: ""
+        name: NEW_PARENT_GROUP_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: T.NEW_PARENT_GROUP_ID
+        transform: T.NEW_PARENT_GROUP_ID
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c
+          stepCounter: f90608e5-2cd1-407f-e615-b2c3d4e5f607
+        config: {}
+        dataType: VARCHAR(16777216)
+        description: ""
+        name: NEW_PARENT_PLANNING_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: T.NEW_PARENT_PLANNING_ID
+        transform: T.NEW_PARENT_PLANNING_ID
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a7b8c9d0-e1f2-4a3b-4c5d-6e7f8a9b0c1d
+          stepCounter: f90608e5-2cd1-407f-e615-b2c3d4e5f607
+        config: {}
+        dataType: CHAR(1)
+        description: ""
+        name: NEW_PARENT_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: T.NEW_PARENT_FLAG
+        transform: T.NEW_PARENT_FLAG
+    cteString: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: PLANNING_ALLIANT_STAGING
+            nodeName: TMPBROKERLIST
+          - locationName: PLANNING_ALLIANT_DBO
+            nodeName: PLANNING_FCCS_BROKER
+        join:
+          joinCondition: |-
+            FROM (
+                WITH BROKERSTOMOVE AS (
+                    SELECT
+                        PLANNING_ID,
+                        BROKER_NAME,
+                        EXISTING_PARENT_PLANNING_ID,
+                        EXISTING_GROUP_ID,
+                        ROW_NUMBER() OVER (ORDER BY PLANNING_ID) AS ROW_NUM
+                    FROM {{ ref('PLANNING_ALLIANT_STAGING', 'TMPBROKERLIST') }}
+                ),
+                TARGETGROUPSTATS AS (
+                    SELECT
+                        MAX(TRY_TO_NUMBER(SUBSTRING(PARENT_PLANNING_ID, 1, POSITION('_', PARENT_PLANNING_ID) - 1))) AS MAX_GROUP_ID,
+                        COUNT(1) AS COUNT_OF_MAX_GROUP_ID
+                    FROM {{ ref('PLANNING_ALLIANT_DBO', 'PLANNING_FCCS_BROKER') }}
+                    WHERE TRY_TO_NUMBER(SUBSTRING(PARENT_PLANNING_ID, 1, POSITION('_', PARENT_PLANNING_ID) - 1)) = (SELECT MAX(TRY_TO_NUMBER(SUBSTRING(PARENT_PLANNING_ID, 1, POSITION('_', PARENT_PLANNING_ID) - 1))) FROM {{ ref('PLANNING_ALLIANT_DBO', 'PLANNING_FCCS_BROKER') }})
+                ),
+                SOURCEGROUPSTATS AS (
+                    SELECT MAX(EXISTING_GROUP_ID) AS MAX_EXISTING_GROUP_ID FROM BROKERSTOMOVE
+                ),
+                CALCULATIONBASE AS (
+                    SELECT
+                        COALESCE(TGS.MAX_GROUP_ID, 0) AS MAX_GROUP_ID,
+                        IFF(SGS.MAX_EXISTING_GROUP_ID = TGS.MAX_GROUP_ID, 0, TGS.COUNT_OF_MAX_GROUP_ID) AS EFFECTIVE_COUNT_OF_MAX_GROUP_ID,
+                        IFF(TGS.MAX_GROUP_ID IS NOT NULL AND SGS.MAX_EXISTING_GROUP_ID <> TGS.MAX_GROUP_ID, 300 - IFF(SGS.MAX_EXISTING_GROUP_ID = TGS.MAX_GROUP_ID, 0, TGS.COUNT_OF_MAX_GROUP_ID), 0) AS SLOTS_IN_LAST_GROUP
+                    FROM TARGETGROUPSTATS AS TGS
+                    CROSS JOIN SOURCEGROUPSTATS AS SGS
+                )
+                SELECT
+                    BTM.PLANNING_ID,
+                    BTM.BROKER_NAME,
+                    BTM.EXISTING_PARENT_PLANNING_ID,
+                    BTM.EXISTING_GROUP_ID,
+                    CASE
+                        WHEN BTM.ROW_NUM <= CB.SLOTS_IN_LAST_GROUP THEN CB.MAX_GROUP_ID
+                        ELSE (CB.MAX_GROUP_ID + 1) + FLOOR((BTM.ROW_NUM - CB.SLOTS_IN_LAST_GROUP - 1) / 300)
+                    END AS NEW_PARENT_GROUP_ID,
+                    CONCAT(
+                        CASE
+                            WHEN BTM.ROW_NUM <= CB.SLOTS_IN_LAST_GROUP THEN CB.MAX_GROUP_ID
+                            ELSE (CB.MAX_GROUP_ID + 1) + FLOOR((BTM.ROW_NUM - CB.SLOTS_IN_LAST_GROUP - 1) / 300)
+                        END, '_Producer_Parent') AS NEW_PARENT_PLANNING_ID,
+                    IFF(
+                        (CASE WHEN BTM.ROW_NUM <= CB.SLOTS_IN_LAST_GROUP THEN CB.MAX_GROUP_ID ELSE (CB.MAX_GROUP_ID + 1) + FLOOR((BTM.ROW_NUM - CB.SLOTS_IN_LAST_GROUP - 1) / 300) END) > CB.MAX_GROUP_ID, 'Y', 'N') AS NEW_PARENT_FLAG
+                FROM BROKERSTOMOVE AS BTM
+                CROSS JOIN CALCULATIONBASE AS CB
+            ) AS T
+        name: BROKER_PARENT_ASSIGNMENTS
+        noLinkRefs: []
+  name: BROKER_PARENT_ASSIGNMENTS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node
